@@ -33,6 +33,7 @@ contract OverlySimplifiedBooking{
     }
 
     mapping (bytes32 => Offer) offers;
+    bytes32[] offerList;
 
     mapping (address => uint) public balances;
 
@@ -71,10 +72,41 @@ contract OverlySimplifiedBooking{
         });
 
         offers[_id] = o; // becoms an open offer
+        offerList.push(_id);
         OfferCreated(_description, offerer); //shout it out loud
 
     }
     event OfferCreated(string _description, address offerer);
+
+    function getOffersCount() constant returns (uint){
+        return offerList.length;
+    }
+
+    function getOffer(uint index) constant returns (
+        uint startTime,
+        uint endTime,
+        uint price,
+        uint mediatorFee,
+        string description,
+        bytes32 offerId,
+        address offerer,
+        address lead,
+        address mediator,
+        State status){
+
+            var o = offers[offerList[index]];
+            startTime = o.startTime;
+            endTime = o.endTime;
+            price = o.price;
+            mediatorFee = o.mediatorFee;
+            description = o.description;
+            offerId= o.offerId;
+            offerer= o.offerer;
+            lead= o.lead;
+            mediator = o.mediator;
+            status = o.status;
+
+        }
 
     /**
      * @notice As a mediator I want to book the offer `_id` for my lead `_lead`

@@ -78,11 +78,11 @@ export default class AppContainer extends Component {
 
   fetchDataForAccount(account) {
     return Promise.all([
-      this.fetchBalance(account),
-      this.fetchLendingAgreements(account),
-      this.fetchOrders(account),
-      this.fetchTrades(account),
-      this.fetchLoans(account),
+      //this.fetchBalance(account),
+      this.fetchRoomOffer(account),
+      //this.fetchOrders(account),
+      //this.fetchTrades(account),
+      //this.fetchLoans(account),
     ]);
   }
 
@@ -102,13 +102,13 @@ export default class AppContainer extends Component {
     });
   }
 
-  fetchLendingAgreements(account) {
+  fetchRoomOffer(account) {
     const contract = this.getContract();
 
-    return contract.getAgreementArraySize.call().then(
+    return contract.getOffersCount.call().then(
       size => Promise.all(
         _.range(size).map(
-          index => contract.getAgreement.call(index),
+          index => contract.getOffer.call(index),
         ),
       ),
     ).then(
@@ -116,13 +116,13 @@ export default class AppContainer extends Component {
         this.setState({
           agreements: arr.map(
             row => {
-              const [from, to, sec, haircut, rate, state] = row;
+              const [from, to, price, mediatorFee, description, offerId, offerer, lead, mediator, state] = row;
               return {
                 from: from,
                 to: to,
-                security: sec,
-                haircut: haircut,
-                rate: rate,
+                security: price,
+                haircut: mediatorFee,
+                rate: description,
                 state: state,
               };
             },
@@ -243,11 +243,11 @@ export default class AppContainer extends Component {
     );
   }
 
-  proposeLendingAgreement(fields) {
+  createOffer(fields) {
     const contract = this.getContract();
 
     return this.getAccount().then(
-      account => contract.proposeLendingAgreement(
+      account => contract.createOffer(
         fields.recipient,
         fields.security,
         fields.haircut,
@@ -286,7 +286,7 @@ export default class AppContainer extends Component {
     const contract = this.getContract();
 
     return this.getAccount().then(
-      account => contract.demo(
+      account => contract.test(
         { from: account },
       ),
     ).then(
@@ -310,7 +310,7 @@ export default class AppContainer extends Component {
     return (
       <MuiThemeProvider>
         <App
-          proposeLendingAgreement={f => this.proposeLendingAgreement(f)}
+          createOffer={f => this.createOffer(f)}
           acceptLendingAgreement={i => this.acceptLendingAgreement(i)}
           runDemo={x => this.runDemo()}
           runDemo2={x => this.runDemo2()}

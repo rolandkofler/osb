@@ -25,7 +25,7 @@ export default class App extends Component {
       trades: PropTypes.array,
       loans: PropTypes.array,
 
-      proposeLendingAgreement: PropTypes.func,
+      createOffer: PropTypes.func,
       runDemo: PropTypes.func,
       runDemo2: PropTypes.func,
     };
@@ -43,10 +43,10 @@ export default class App extends Component {
           onTouchTap={this.props.runDemo2}
         />
         {this.renderBalancesCard()}
-        {this.renderLendingAgreementsCard()}
-        {this.renderOrdersCard()}
+        {this.renderRoomOfferCard()}
+        {/*{this.renderOrdersCard()}
         {this.renderTradesCard()}
-        {this.renderLoansCard()}
+        {this.renderLoansCard()} */}
       </div>
     );
   }
@@ -67,7 +67,7 @@ export default class App extends Component {
       <Card>
         <CardTitle
           title={this.props.loading ? "Balances... (wait)" : "Balances"}
-          subtitle={"Account: "+this.props.account}>
+          subtitle={"Wallet: "+this.props.account}>
           {this.renderProgress()}
         </CardTitle>
         <CardText>
@@ -91,8 +91,8 @@ export default class App extends Component {
     );
   }
 
-  renderLendingAgreementsCard() {
-    const stateNames = ['PENDING', 'ACTIVE', 'REJECTED', 'CANCELLED'];
+  renderRoomOfferCard() {
+    const stateNames = ['Open', 'Expired', 'Booked', 'Settled'];
 
     const makeActions = (agreement, index) => {
       if (stateNames[agreement.state.toNumber()] === 'PENDING') {
@@ -107,16 +107,16 @@ export default class App extends Component {
 
       return <div />;
     };
-    
+
     const agreements = this.props.agreements
       ? this.props.agreements.map(
           (a, i) => (
               <TableRow key={i}>
-                <TableRowColumn>{a.from}</TableRowColumn>
-                <TableRowColumn>{a.to}</TableRowColumn>
+                <TableRowColumn>{a.start}</TableRowColumn>
+                <TableRowColumn>{a.end}</TableRowColumn>
                 <TableRowColumn>{a.security}</TableRowColumn>
                 <TableRowColumn>{a.haircut.toNumber() / 100}%</TableRowColumn>
-                <TableRowColumn>{a.rate.toNumber() / 100}%</TableRowColumn>
+                <TableRowColumn>{a.price.toNumber() / 100}%</TableRowColumn>
                 <TableRowColumn>{stateNames[a.state.toNumber()]}</TableRowColumn>
                 <TableRowColumn>{makeActions(a, i)}</TableRowColumn>
               </TableRow>
@@ -126,21 +126,21 @@ export default class App extends Component {
 
     return (
       <Card>
-        <CardTitle title="Lending agreements">
+        <CardTitle title="Room Offers">
           {this.renderProgress()}
         </CardTitle>
         <CardText>
           <Table
             selectable={false}
             fixedHeader={false}
-            style={{'table-layout': 'auto'}}>
+            style={{'tableLayout': 'auto'}}>
             <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
               <TableRow>
                 <TableHeaderColumn>From</TableHeaderColumn>
                 <TableHeaderColumn>To</TableHeaderColumn>
-                <TableHeaderColumn>Security</TableHeaderColumn>
-                <TableHeaderColumn>Haircut</TableHeaderColumn>
-                <TableHeaderColumn>Rate</TableHeaderColumn>
+                <TableHeaderColumn>Description</TableHeaderColumn>
+                <TableHeaderColumn>Broker Fee</TableHeaderColumn>
+                <TableHeaderColumn>Price</TableHeaderColumn>
                 <TableHeaderColumn>State</TableHeaderColumn>
                 <TableHeaderColumn>Actions</TableHeaderColumn>
               </TableRow>
@@ -151,8 +151,8 @@ export default class App extends Component {
           </Table>
         </CardText>
         <CardActions>
-          <CreateLendingAgreementDialog
-            proposeLendingAgreement={this.props.proposeLendingAgreement}
+          <CreateRoomOfferDialog
+            createOffer={this.props.createOffer}
           />
         </CardActions>
       </Card>
@@ -328,10 +328,10 @@ export default class App extends Component {
   }
 }
 
-class CreateLendingAgreementDialog extends React.Component {
+class CreateRoomOfferDialog extends React.Component {
   static get propTypes() {
     return {
-      proposeLendingAgreement: PropTypes.func,
+      createOffer: PropTypes.func,
     };
   }
 
@@ -351,11 +351,13 @@ class CreateLendingAgreementDialog extends React.Component {
   };
 
   handleSubmit() {
-    this.props.proposeLendingAgreement({
+    this.props.createOffer({
+      start: this.state.start,
+
       rate: this.state.rate,
       haircut: this.state.haircut,
       recipient: this.state.recipient,
-      security: this.state.security,    
+      security: this.state.security,
     }).then(
       x => this.handleClose(),
     );
@@ -461,7 +463,7 @@ class AcceptButton extends React.Component {
   };
 
   handleConfirm() {
-    this.props.onConfirm().then(x => this.handleClose()); 
+    this.props.onConfirm().then(x => this.handleClose());
   }
 
   render() {
