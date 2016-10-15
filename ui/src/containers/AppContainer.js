@@ -25,7 +25,7 @@ export default class AppContainer extends Component {
           resolve(value);
         }
       }
-      
+
       web3.eth.getAccounts((err, accs) => {
         if (err != null) {
           alert("There was an error fetching your accounts.");
@@ -66,10 +66,10 @@ export default class AppContainer extends Component {
 
   getContract() {
     const web3 = this.getWeb3();
-    const Contract = require("../../../protocol/lib/build/contracts/StarbuckersDemo.sol.js");
+    const Contract = require("../../../protocol/src/build/contracts/TestBooking.sol.js");
     Contract.setProvider(web3.currentProvider);
     const contract = Contract.deployed();
-    
+
     // for interactive debug
     window.contract = contract;
 
@@ -181,7 +181,7 @@ export default class AppContainer extends Component {
           trades: arr.map(
             row => {
               const [
-                buyer, seller, security, units, price, state 
+                buyer, seller, security, units, price, state
               ] = row;
 
               return {
@@ -245,7 +245,7 @@ export default class AppContainer extends Component {
 
   proposeLendingAgreement(fields) {
     const contract = this.getContract();
- 
+
     return this.getAccount().then(
       account => contract.proposeLendingAgreement(
         fields.recipient,
@@ -266,7 +266,7 @@ export default class AppContainer extends Component {
 
   acceptLendingAgreement(index) {
     const contract = this.getContract();
- 
+
     return this.getAccount().then(
       account => contract.acceptLendingAgreement(
         index,
@@ -284,7 +284,7 @@ export default class AppContainer extends Component {
 
   runDemo() {
     const contract = this.getContract();
- 
+
     return this.getAccount().then(
       account => contract.demo(
         { from: account },
@@ -296,7 +296,7 @@ export default class AppContainer extends Component {
 
   runDemo2() {
     const contract = this.getContract();
- 
+
     return this.getAccount().then(
       account => contract.step2(
         { from: account },
