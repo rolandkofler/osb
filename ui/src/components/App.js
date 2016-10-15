@@ -112,11 +112,11 @@ export default class App extends Component {
       ? this.props.agreements.map(
           (a, i) => (
               <TableRow key={i}>
-                <TableRowColumn>{a.start}</TableRowColumn>
-                <TableRowColumn>{a.end}</TableRowColumn>
-                <TableRowColumn>{a.security}</TableRowColumn>
-                <TableRowColumn>{a.haircut.toNumber() / 100}%</TableRowColumn>
-                <TableRowColumn>{a.price.toNumber() / 100}%</TableRowColumn>
+                <TableRowColumn><Timestamp time={a.from}/></TableRowColumn>
+                <TableRowColumn><Timestamp time={a.to}/></TableRowColumn>
+                <TableRowColumn>{a.security.toNumber() / Math.pow(10, 18)} ETH</TableRowColumn>
+                <TableRowColumn>{a.haircut.toNumber() / Math.pow(10, 18)} ETH</TableRowColumn>
+                <TableRowColumn>{a.price}</TableRowColumn>
                 <TableRowColumn>{stateNames[a.state.toNumber()]}</TableRowColumn>
                 <TableRowColumn>{makeActions(a, i)}</TableRowColumn>
               </TableRow>
@@ -167,8 +167,8 @@ export default class App extends Component {
       ? this.props.orders.map(
           (a, i) => (
               <TableRow key={i}>
-                <TableRowColumn>{a.from}</TableRowColumn>
-                <TableRowColumn>{a.to}</TableRowColumn>
+                <TableRowColumn><Timestamp time={a.from}/></TableRowColumn>
+                <TableRowColumn><Timestamp time={a.to}/></TableRowColumn>
                 <TableRowColumn>{buySell[a.buysell.toNumber()]}</TableRowColumn>
                 <TableRowColumn>{a.security}</TableRowColumn>
                 <TableRowColumn>{a.units.toNumber()}</TableRowColumn>

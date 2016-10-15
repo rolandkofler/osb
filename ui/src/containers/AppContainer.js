@@ -44,7 +44,6 @@ export default class AppContainer extends Component {
 
   fetchData() {
     this.setState({ loading: true });
-
     return this.getAccount().then(
       account => {
         this.setState({ account: account });
@@ -79,7 +78,7 @@ export default class AppContainer extends Component {
   fetchDataForAccount(account) {
     return Promise.all([
       //this.fetchBalance(account),
-      this.fetchRoomOffer(account),
+      this.fetchRoomOffer(account)
       //this.fetchOrders(account),
       //this.fetchTrades(account),
       //this.fetchLoans(account),
@@ -104,11 +103,11 @@ export default class AppContainer extends Component {
 
   fetchRoomOffer(account) {
     const contract = this.getContract();
-
+    contract.getOffersCount.call().then( size => console.log('getOffersCount '+ size));
     return contract.getOffersCount.call().then(
       size => Promise.all(
         _.range(size).map(
-          index => contract.getOffer.call(index),
+          index => contract.getOffer.call(index)
         ),
       ),
     ).then(
@@ -116,6 +115,7 @@ export default class AppContainer extends Component {
         this.setState({
           agreements: arr.map(
             row => {
+              console.log('here we are '+ row);
               const [from, to, price, mediatorFee, description, offerId, offerer, lead, mediator, state] = row;
               return {
                 from: from,
@@ -286,11 +286,16 @@ export default class AppContainer extends Component {
     const contract = this.getContract();
 
     return this.getAccount().then(
-      account => contract.test(
-        { from: account },
-      ),
+      account => {
+        contract.test(    { from: account, gas: 1 });
+        contract.test(    { from: account, gas: 3390000 }  )
+      }
     ).then(
-      x => this.fetchData(),
+      x => {
+        var txrecipe = this.getWeb3().eth.getTransactionReceipt(x);
+        console.log('test() '+ JSON.stringify(txrecipe));
+        this.fetchData();
+      }
     );
   }
 
