@@ -1,5 +1,5 @@
-# starbuckers
-Ethereum based Securities lending
+# OSB - Overly Simplified Booking Contract
+Ethereum based Room Booking and intermediation
 
 Running the UI
 --------------
