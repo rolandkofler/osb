@@ -120,9 +120,9 @@ export default class AppContainer extends Component {
               return {
                 from: from,
                 to: to,
-                security: price,
+                security: description,
                 haircut: mediatorFee,
-                rate: description,
+                rate: price,
                 state: state,
               };
             },
@@ -287,13 +287,11 @@ export default class AppContainer extends Component {
 
     return this.getAccount().then(
       account => {
-        contract.test(    { from: account, gas: 1 });
+        contract.step1(    { from: account, gas: 3390000 });
         contract.test(    { from: account, gas: 3390000 }  )
       }
     ).then(
       x => {
-        var txrecipe = this.getWeb3().eth.getTransactionReceipt(x);
-        console.log('test() '+ JSON.stringify(txrecipe));
         this.fetchData();
       }
     );
@@ -311,6 +309,30 @@ export default class AppContainer extends Component {
     );
   }
 
+  runDemo3() {
+    const contract = this.getContract();
+
+    return this.getAccount().then(
+      account => contract.step3(
+        { from: account },
+      ),
+    ).then(
+      x => this.fetchData(),
+    );
+  }
+
+  runDemo4() {
+    const contract = this.getContract();
+
+    return this.getAccount().then(
+      account => contract.withdraw(
+        { from: account },
+      ),
+    ).then(
+      x => this.fetchData(),
+    );
+  }
+
   render() {
     return (
       <MuiThemeProvider>
@@ -319,6 +341,8 @@ export default class AppContainer extends Component {
           acceptLendingAgreement={i => this.acceptLendingAgreement(i)}
           runDemo={x => this.runDemo()}
           runDemo2={x => this.runDemo2()}
+          runDemo3={x => this.runDemo3()}
+          runDemo4={x => this.runDemo4()}
           {...this.state}
         />
       </MuiThemeProvider>

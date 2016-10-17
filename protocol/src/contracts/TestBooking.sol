@@ -186,6 +186,18 @@ contract TestBooking is OverlySimplifiedBooking{
 
         }
     }
+
+    function step1() payable{
+        createOffer( now + 2 weeks, now + 3 weeks, 80 ether, 10 ether, "Villa Gisela ****S, 2 Persons, Wellness", 2);
+    }
+
+    function step2() payable{
+         bookOffer(2, this);
+    }
+
+    function step3() payable{
+         settleBooking(2);
+    }
     event AssertionFailed(string msg, uint val);
 
     function createOffer() payable{

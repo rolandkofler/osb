@@ -28,19 +28,31 @@ export default class App extends Component {
       createOffer: PropTypes.func,
       runDemo: PropTypes.func,
       runDemo2: PropTypes.func,
+      runDemo3: PropTypes.func,
+      runDemo4: PropTypes.func
     };
   }
 
   render() {
     return (
       <div>
+        <h1>Blockchain Booking Market</h1>
         <FlatButton
-          label="DEMO"
+          label="[1] Create Offer"
           onTouchTap={this.props.runDemo}
         />
         <FlatButton
-          label="DEMO2"
+          label="[2] Book Offer"
           onTouchTap={this.props.runDemo2}
+        />
+
+        <FlatButton
+          label="[3] Settle Offer"
+          onTouchTap={this.props.runDemo3}
+        />
+        <FlatButton
+          label="[4] Withdraw Money"
+          onTouchTap={this.props.runDemo4}
         />
         {this.renderBalancesCard()}
         {this.renderRoomOfferCard()}
@@ -66,27 +78,9 @@ export default class App extends Component {
     return (
       <Card>
         <CardTitle
-          title={this.props.loading ? "Balances... (wait)" : "Balances"}
-          subtitle={"Wallet: "+this.props.account}>
+          subtitle={"Ethereum Wallet: "+this.props.account}>
           {this.renderProgress()}
         </CardTitle>
-        <CardText>
-          <Table selectable={false}>
-            <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-              <TableRow>
-                <TableHeaderColumn>Type</TableHeaderColumn>
-                <TableHeaderColumn>Amount</TableHeaderColumn>
-              </TableRow>
-            </TableHeader>
-            <TableBody displayRowCheckbox={false}>
-              <TableRow>
-                <TableRowColumn>Cash</TableRowColumn>
-                <TableRowColumn>£{this.props.cash}</TableRowColumn>
-              </TableRow>
-              {securities}
-            </TableBody>
-          </Table>
-        </CardText>
       </Card>
     );
   }
@@ -112,11 +106,11 @@ export default class App extends Component {
       ? this.props.agreements.map(
           (a, i) => (
               <TableRow key={i}>
-                <TableRowColumn><Timestamp time={a.from}/></TableRowColumn>
-                <TableRowColumn><Timestamp time={a.to}/></TableRowColumn>
-                <TableRowColumn>{a.security.toNumber() / Math.pow(10, 18)} ETH</TableRowColumn>
+                <TableRowColumn><Timestamp time={a.from} format="date"/></TableRowColumn>
+                <TableRowColumn><Timestamp time={a.to} format="date"/></TableRowColumn>
+                <TableRowColumn>{a.security}</TableRowColumn>
                 <TableRowColumn>{a.haircut.toNumber() / Math.pow(10, 18)} ETH</TableRowColumn>
-                <TableRowColumn>{a.price}</TableRowColumn>
+                <TableRowColumn>{a.rate.toNumber() / Math.pow(10, 18)} ETH</TableRowColumn>
                 <TableRowColumn>{stateNames[a.state.toNumber()]}</TableRowColumn>
                 <TableRowColumn>{makeActions(a, i)}</TableRowColumn>
               </TableRow>
@@ -167,7 +161,7 @@ export default class App extends Component {
       ? this.props.orders.map(
           (a, i) => (
               <TableRow key={i}>
-                <TableRowColumn><Timestamp time={a.from}/></TableRowColumn>
+                //<TableRowColumn><Timestamp time="1450663457" format="ago"/></TableRowColumn>
                 <TableRowColumn><Timestamp time={a.to}/></TableRowColumn>
                 <TableRowColumn>{buySell[a.buysell.toNumber()]}</TableRowColumn>
                 <TableRowColumn>{a.security}</TableRowColumn>
@@ -336,10 +330,11 @@ class CreateRoomOfferDialog extends React.Component {
   }
 
   state = {
-    open: false,
-    rate: '3',
-    haircut: '10',
-    security: 'BARC.L',
+    from: "2016/10/23",
+    to: "2016/10/30",
+    price: '30',
+    fee: '10',
+    desc: 'Garni Rosi ***, Breakfast included'
   };
 
   handleOpen = () => {
@@ -352,7 +347,7 @@ class CreateRoomOfferDialog extends React.Component {
 
   handleSubmit() {
     this.props.createOffer({
-      start: this.state.start,
+      from: this.state.from,
 
       rate: this.state.rate,
       haircut: this.state.haircut,
@@ -380,16 +375,36 @@ class CreateRoomOfferDialog extends React.Component {
 
     const dialog = this.state.open ? (
         <Dialog
-          title="New lending agreement"
+          title="New Room Offer"
           actions={actions}
           modal={true}
           open={true}
           onRequestClose={this.handleClose}
         >
+        <TextField
+          hintText="available from"
+          floatingLabelText="From"
+          value={this.state.from || ""}
+          onChange={
+            event => this.setState({
+              recipient: event.target.value
+            })
+          }
+        />
+        <TextField
+          hintText="available to"
+          floatingLabelText="To"
+          value={this.state.to || ""}
+          onChange={
+            event => this.setState({
+              recipient: event.target.value
+            })
+          }
+        />
           <TextField
-            hintText="recipient address"
-            floatingLabelText="Recipient"
-            value={this.state.recipient || ""}
+            hintText="guest fee for the time interval"
+            floatingLabelText="Price"
+            value={this.state.price || ""}
             onChange={
               event => this.setState({
                 recipient: event.target.value
@@ -397,9 +412,9 @@ class CreateRoomOfferDialog extends React.Component {
             }
           />
           <TextField
-            hintText="which security you want to lend"
-            floatingLabelText="Security"
-            value={this.state.security}
+            hintText="what the broker recieves for finding a paying guest"
+            floatingLabelText="Broker Fee"
+            value={this.state.fee}
             onChange={
               event => this.setState({
                 security: event.target.value
@@ -407,22 +422,14 @@ class CreateRoomOfferDialog extends React.Component {
             }
           />
           <TextField
-            hintText="haircut"
-            floatingLabelText="Haircut, %"
-            value={this.state.haircut}
+            hintText="describe your offer extensively"
+            multiLine="true"
+            rows="2"
+            floatingLabelText="Description"
+            value={this.state.desc}
             onChange={
               event => this.setState({
                 haircut: event.target.value
-              })
-            }
-          />
-          <TextField
-            hintText="lending rate"
-            floatingLabelText="Lending rate, %"
-            value={this.state.rate}
-            onChange={
-              event => this.setState({
-                rate: event.target.value
               })
             }
           />
@@ -432,7 +439,7 @@ class CreateRoomOfferDialog extends React.Component {
     return (
       <div>
         <RaisedButton
-          label="Create lending agreement"
+          label="Create Offer"
           primary={true}
           onTouchTap={this.handleOpen}
         />
